@@ -71,20 +71,20 @@ In the simplest case it might look like this:
 
 ```
 for each pixel on screen {
-	generate ray
-	trace ray
-	if wasHit(ray) {
-			lighting = 0
-			for each light {
-				generate secondaryRay
-			trace secondaryRay
-			If not wasHit(secondaryRay) {
-				lighting += calcLighting(light)
-			}
-		}
-		ray.color *= lighting
-	}
-	resultImage[pixel] = ray.color
+    generate ray
+    trace ray
+    if wasHit(ray) {
+        lighting = 0
+        for each light {
+            generate secondaryRay
+            trace secondaryRay
+            if not wasHit(secondaryRay) {
+                lighting += calcLighting(light)
+            }
+        }
+        ray.color *= lighting
+    }
+    resultImage[pixel] = ray.color
 }
 ```
 
