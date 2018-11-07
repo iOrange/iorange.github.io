@@ -111,7 +111,7 @@ As you can see from this example, each Intersection group can contain from one t
 
 This mechanism allows you to have a set of specialized shaders for different stages of your raytracer, and you can decide for yourself which one to use, which is very convenient.
 
-### vkCmdTraceRaysNVX и Raytracing pipeline.
+### vkCmdTraceRaysNVX and Raytracing pipeline.
 
 We have finished with the most complex and confusing part, now let’s briefly examine the remaining 2 elements.
 
