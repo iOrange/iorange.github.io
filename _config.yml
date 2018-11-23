@@ -8,4 +8,4 @@ include:
   - LICENSE.md
   - COPYING.md
 
-theme: jekyll-theme-minimal
+theme: jekyll-theme-cayman
