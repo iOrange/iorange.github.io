@@ -1,5 +1,5 @@
 ## 0. Pre-intro
-![Whitted](p01/Whitted_Hi-Res_01.jpg)
+![Whitted](./Whitted_Hi-Res_01.jpg)
 
 What time we live in! It seemed that not so long ago we were waiting for hours for the CPU to calculate this famous image by Turner Whitted, and today we have consumer models of video cards with hardware support for ray tracing that are available to us!
 
@@ -102,7 +102,7 @@ First we have Raygen shader, he will be in the first group #0. Next come 2 Close
 
 To make it even clearer, let's add an Any-hit shader for secondary rays (we don’t have to find the nearest intersection after all, only the fact of blocking the light source is important for us). This shader will be included in group #2 as it belongs to a subset of Intersection shaders, like the Closest-hit.
 
-![Shader Binding Table](p01/SBT.gif)
+![Shader Binding Table](./SBT.gif)
 
 As it can be seen from my perfect drawing - in order for the *traceNVX* function to call shaders for the primary rays, we need to specify the indices of the corresponding groups within the corresponding subset. Shaders for processing intersections for the primary rays are in group #1, which, in turn, is the first in its subset, which means its index is 0. The same is true for group #3, which contains a miss shader for primary rays.
 
@@ -174,7 +174,7 @@ vkCmdBuildAccelerationStructureNVX(commandBuffer,
                                    mScene.bottomLevelAS[0].accelerationStructure, VK_NULL_HANDLE,
                                    scratchBuffer.GetBuffer(), 0);
 
-vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_RAYTRACING_BIT_NVX, 
+vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_RAYTRACING_BIT_NVX,
 VK_PIPELINE_STAGE_RAYTRACING_BIT_NVX, 0, 1, &memoryBarrier, 0, 0, 0, 0);
 ```
 
@@ -386,7 +386,7 @@ To compile these shaders you should use the *glslangValidator* tool that you can
 
 After successfully compiling the application and all shaders, we can finally admire our unearthly beautiful triangle!
 
-![Happy Triangle!](p01/screenshot_opt.png)
+![Happy Triangle!](./screenshot_opt.png)
 
 You must agree that no rasterization will allow us to get such a beautiful and physically correct triangle ;)
 
