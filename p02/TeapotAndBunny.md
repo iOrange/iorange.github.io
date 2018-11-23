@@ -1,5 +1,5 @@
 ## 0. Greetings
-![Result](p02/screen_08_opt-min.png)
+![Result](screen_08_opt-min.png)
 
 Hello everyone!
 
@@ -60,7 +60,7 @@ vec3 CalcRayDir(vec2 screenUV, float aspect) {
 ```
 
 Now, if we launch our application, we should see the following picture.
-![Scene_01](p02/screen_01_opt.png)
+![Scene_01](screen_01_opt.png)
 
 Now, instead of one colored triangle, we have several hundred thousands of colored triangles on the screen. All glory to raytracing!
 
@@ -100,7 +100,7 @@ const vec3 texel = textureLod(TexturesArray[nonuniformEXT(matID)], uv, 0.0f).rgb
 
 As you can see, it turns out to be not that difficult, and is very flexible.
 Run the application to see the following image:
-![Scene_02](p02/screen_02_opt.png)
+![Scene_02](screen_02_opt.png)
 
 Looks way better already, but something is missing … Oh yeah! The lighting!
 
@@ -113,7 +113,7 @@ And this is where ray tracing shows it’s advantages over rasterization - shado
 
 To do all this, after we found the primary intersection, we need to build a new ray that’ll point towards the light source, and call **traceNVX** again. This can also be done in the Hit shader, but it is recommended to keep all traceNVX calls inside the Raygen shader, as this allows the scheduler to work with it’s maximum efficiency.
 
-Another optimization is to use the smallest possible *RayPayload*, as well as specialized Hit and Miss shaders. For the “shadow” rays payload we need only a single value that’ll tell us whether we hit something or not. 
+Another optimization is to use the smallest possible *RayPayload*, as well as specialized Hit and Miss shaders. For the “shadow” rays payload we need only a single value that’ll tell us whether we hit something or not.
 
 Let's modify our Raygen shader:
 ```c++
@@ -158,7 +158,7 @@ So here we check if there was a primary intersection, or if we hit the “sky”
 After that, we check if there was an intersection, and if it wasn’t, then we calculate lighting according to the Lambertian model. If there was an intersection - then we take the constant ambient light value as our lighting.
 
 Despite the simplicity of this lighting model, due to the presence of shadows, we can get a pretty nice picture.
-![Scene_03](p02/screen_03_opt.png)
+![Scene_03](screen_03_opt.png)
 
 ## 5. Mirror
 
@@ -194,7 +194,7 @@ if (isTeapot > 0.0f) {
 
 We’re using the same RayPayload and the same shaders as for the primary rays, because, in fact, we simply continue to trace the primary ray.
 Now we can enjoy the view of our chrome-plated teapot.
-![Scene_04](p02/screen_04_opt.png)
+![Scene_04](screen_04_opt.png)
 
 As you, probably, could notice - the reflection on our teapot is somehow strange. There is no shadow in the reflection of the floor, and the side and top handles of our teapot were reflected textured. This is because after finding the intersection of the reflected ray, we simply pick up the resulting color and stop there.
 
@@ -275,7 +275,7 @@ for (int i = 0; i < SWS_MAX_RECURSION; ++i) {
 ```
 
 As a result - we have some good looking reflections:
-![Scene_06](p02/screen_06_opt.png)
+![Scene_06](screen_06_opt.png)
 
 ## 7. Ice
 
@@ -330,7 +330,7 @@ Let’s run the application to check the result.
 
 > Note that I also modified texture coordinates of the floor, to make it look a bit better.
 
-![Result](p02/screen_08_opt-min.png)
+![Result](screen_08_opt-min.png)
 
 Wow, we made a long way from a simple colored triangle to a scene with multiple textured and lit objects, and implemented reflective and refracting surfaces. Using this base, it is already possible to build a more or less serious ray tracer / path tracer.
 
