@@ -394,3 +394,5 @@ Well, congratulations! Now you are officially RTX ON!
 
 
 The source code for this article: [https://github.com/iOrange/rtxON/tree/happy_triangle_fixed](https://github.com/iOrange/rtxON/tree/happy_triangle_fixed)
+
+* [Second article](./p02/TeapotAndBunny.md)
