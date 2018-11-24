@@ -22,7 +22,7 @@ I’m using [tinyobjloader](https://github.com/syoyo/tinyobjloader "tinyobjloade
 
 Also, for more convenient work with the scene and its resources, I’ve added some helper structures: *RTAccelerationStructure*, *RTMesh*, *RTMaterial*, *RTScene*.
 
-The code, for the most part, remains unchanged, only instead of one BLAS, we now have multiple, and therefore multiple *VkGeometryNVX* and *VkGeometryInstance* are created. It is also important to note that we assign the object ordinal number in the scene to the instanceId field of each instance. This will help us in the future to access its attributes. After the creation of BLAS and instance for each object of the scene, we build a TLAS. Our scene is ready.
+The code, for the most part, remains unchanged, only instead of one BLAS, we now have multiple, and therefore multiple *VkGeometryNV* and *VkGeometryInstance* are created. It is also important to note that we assign the object ordinal number in the scene to the instanceId field of each instance. This will help us in the future to access its attributes. After the creation of BLAS and instance for each object of the scene, we build a TLAS. Our scene is ready.
 
 ## 2. Camera, action!
 
@@ -84,15 +84,15 @@ So let's write down the list of buffers we will use:
 But we have multiple objects in the scene, what about this? Fortunately for us, there is **VK_EXT_descriptor_indexing** extension, that adds a lot of goodies and relaxes for descriptors, but the most important thing for us, is that when we create descriptor set layout, we can indicate variable numbers of bindings. Thus, we can bind as many resources as we want, which is just perfect for our situation!
 I will not discuss this extension in details, it is beyond the scope of this article, so for further reference you can follow this link - [https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec. html#VK_EXT_descriptor_indexing](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec. html#VK_EXT_descriptor_indexing)
 
-Do you remember that instanceId field we assigned for each instance? So here it is now useful for us to access the correct buffer from the array! For this we will use another built-in variable **gl_InstanceCustomIndexNVX**, that contains our value.
+Do you remember that instanceId field we assigned for each instance? So here it is now useful for us to access the correct buffer from the array! For this we will use another built-in variable **gl_InstanceCustomIndexNV**, that contains our value.
 This is what our texturing code will look like:
 ```c++
 const vec3 barycentrics = vec3(1.0f - HitAttribs.x - HitAttribs.y, HitAttribs.x, HitAttribs.y);
-const uint matID = MatIDsArray[nonuniformEXT(gl_InstanceCustomIndexNVX)].MatIDs[gl_PrimitiveID];
-const uvec4 face = FacesArray[nonuniformEXT(gl_InstanceCustomIndexNVX)].Faces[gl_PrimitiveID];
-VertexAttribute v0 = AttribsArray[nonuniformEXT(gl_InstanceCustomIndexNVX)].VertexAttribs[int(face.x)];
-VertexAttribute v1 = AttribsArray[nonuniformEXT(gl_InstanceCustomIndexNVX)].VertexAttribs[int(face.y)];
-VertexAttribute v2 = AttribsArray[nonuniformEXT(gl_InstanceCustomIndexNVX)].VertexAttribs[int(face.z)];
+const uint matID = MatIDsArray[nonuniformEXT(gl_InstanceCustomIndexNV)].MatIDs[gl_PrimitiveID];
+const uvec4 face = FacesArray[nonuniformEXT(gl_InstanceCustomIndexNV)].Faces[gl_PrimitiveID];
+VertexAttribute v0 = AttribsArray[nonuniformEXT(gl_InstanceCustomIndexNV)].VertexAttribs[int(face.x)];
+VertexAttribute v1 = AttribsArray[nonuniformEXT(gl_InstanceCustomIndexNV)].VertexAttribs[int(face.y)];
+VertexAttribute v2 = AttribsArray[nonuniformEXT(gl_InstanceCustomIndexNV)].VertexAttribs[int(face.z)];
 
 const vec2 uv = BaryLerp(v0.uv.xy, v1.uv.xy, v2.uv.xy, barycentrics);
 const vec3 texel = textureLod(TexturesArray[nonuniformEXT(matID)], uv, 0.0f).rgb;
@@ -111,7 +111,7 @@ Or in simple terms - mister **N dot L**.
 
 And this is where ray tracing shows it’s advantages over rasterization - shadows! A point is in the shadow, if it does not “see” the light source directly, and it is very easy to check this with ray tracing — all you have to do is to shoot a ray in the direction of the light source and see if it hits anything on its way. If an intersection is found, then the light source is blocked and we are “in shadow”. If there was no intersection, then we are lit.
 
-To do all this, after we found the primary intersection, we need to build a new ray that’ll point towards the light source, and call **traceNVX** again. This can also be done in the Hit shader, but it is recommended to keep all traceNVX calls inside the Raygen shader, as this allows the scheduler to work with it’s maximum efficiency.
+To do all this, after we found the primary intersection, we need to build a new ray that’ll point towards the light source, and call **traceNV** again. This can also be done in the Hit shader, but it is recommended to keep all traceNV calls inside the Raygen shader, as this allows the scheduler to work with it’s maximum efficiency.
 
 Another optimization is to use the smallest possible *RayPayload*, as well as specialized Hit and Miss shaders. For the “shadow” rays payload we need only a single value that’ll tell us whether we hit something or not.
 
@@ -126,20 +126,20 @@ if (hitDistance > 0.0f) {
     const vec3 hitPos = origin + direction * hitDistance;
     const vec3 toLight = normalize(Params.sunPosAndAmbient.xyz);
     const vec3 shadowRayOrigin = hitPos + hitNormal * 0.01f;
-    const uint shadowRayFlags = gl_RayFlagsOpaqueNVX | gl_RayFlagsTerminateOnFirstHitNVX;
+    const uint shadowRayFlags = gl_RayFlagsOpaqueNV | gl_RayFlagsTerminateOnFirstHitNV;
     const uint shadowRecordOffset = 1;
     const uint shadowMissIndex = 1;
-    traceNVX(Scene,
-             rayFlags,
-             cullMask,
-             shadowRecordOffset,
-             stbRecordStride,
-             shadowMissIndex,
-             shadowRayOrigin,
-             0.0f,
-             toLight,
-             tmax,
-             SWS_LOC_SHADOW_RAY);
+    traceNV(Scene,
+            rayFlags,
+            cullMask,
+            shadowRecordOffset,
+            stbRecordStride,
+            shadowMissIndex,
+            shadowRayOrigin,
+            0.0f,
+            toLight,
+            tmax,
+            SWS_LOC_SHADOW_RAY);
     if (ShadowRay.distance > 0.0f) {
         lighting = Params.sunPosAndAmbient.w;
     } else {
@@ -148,9 +148,9 @@ if (hitDistance > 0.0f) {
 }
 ```
 
-> Please note that for the “shadow” rays we add **gl_RayFlagsTerminateOnFirstHitNVX** flag. In this case, we will stop tracing at the first found intersection, without finding the nearest one. It’s only a fact of an occlusion is important to us, after all.
+> Please note that for the “shadow” rays we add **gl_RayFlagsTerminateOnFirstHitNV** flag. In this case, we will stop tracing at the first found intersection, without finding the nearest one. It’s only a fact of an occlusion is important to us, after all.
 
-So here we check if there was a primary intersection, or if we hit the “sky”. If there was an intersection - then we calculate the intersection point (we know the distance to the intersection point from the ray origin), then get the direction to the light source, and call *traceNVX*, specifying our specialized “shadow” shaders, as well as the location of *PayLoad* for “shadow” rays.
+So here we check if there was a primary intersection, or if we hit the “sky”. If there was an intersection - then we calculate the intersection point (we know the distance to the intersection point from the ray origin), then get the direction to the light source, and call *traceNV*, specifying our specialized “shadow” shaders, as well as the location of *PayLoad* for “shadow” rays.
 
 
 > Please note that we slightly offset our shadow ray origin along the normal. This is done to avoid unwanted “self-shadowing”. You can also use a non-zero tmin value for this.
@@ -178,17 +178,17 @@ const float isTeapot = PrimaryRay.normal.w;
 if (isTeapot > 0.0f) {
     const vec3 hitPos = origin + direction * hitDistance + hitNormal * 0.01f;
     const vec3 reflectedDir = reflect(direction, hitNormal);
-     traceNVX(Scene,
-             rayFlags,
-             cullMask,
-             primaryRecordOffset,
-             stbRecordStride,
-             primaryMissIndex,
-             hitPos,
-             0.0f,
-             reflectedDir,
-             tmax,
-             SWS_LOC_PRIMARY_RAY);
+     traceNV(Scene,
+            rayFlags,
+            cullMask,
+            primaryRecordOffset,
+            stbRecordStride,
+            primaryMissIndex,
+            hitPos,
+            0.0f,
+            reflectedDir,
+            tmax,
+            SWS_LOC_PRIMARY_RAY);
 }
 ```
 
@@ -216,17 +216,17 @@ Let's change our shader according to the described algorithm:
 ```c++
 vec3 finalColor = vec3(0.0f);
 for (int i = 0; i < SWS_MAX_RECURSION; ++i) {
-    traceNVX(Scene,
-             rayFlags,
-             cullMask,
-             primaryRecordOffset,
-             stbRecordStride,
-             primaryMissIndex,
-             origin,
-             tmin,
-             direction,
-             tmax,
-             SWS_LOC_PRIMARY_RAY);
+    traceNV(Scene,
+            rayFlags,
+            cullMask,
+            primaryRecordOffset,
+            stbRecordStride,
+            primaryMissIndex,
+            origin,
+            tmin,
+            direction,
+            tmax,
+            SWS_LOC_PRIMARY_RAY);
 
     const vec3 hitColor = PrimaryRay.colorAndDist.rgb;
     const float hitDistance = PrimaryRay.colorAndDist.w;
@@ -252,17 +252,17 @@ for (int i = 0; i < SWS_MAX_RECURSION; ++i) {
             const vec3 toLight = normalize(Params.sunPosAndAmbient.xyz);
             const vec3 shadowRayOrigin = hitPos + hitNormal * 0.01f;
 
-            traceNVX(Scene,
-                     rayFlags,
-                     cullMask,
-                     shadowRecordOffset,
-                     stbRecordStride,
-                     shadowMissIndex,
-                     shadowRayOrigin,
-                     0.0f,
-                     toLight,
-                     tmax,
-                     SWS_LOC_SHADOW_RAY);
+            traceNV(Scene,
+                    rayFlags,
+                    cullMask,
+                    shadowRecordOffset,
+                    stbRecordStride,
+                    shadowMissIndex,
+                    shadowRayOrigin,
+                    0.0f,
+                    toLight,
+                    tmax,
+                    SWS_LOC_SHADOW_RAY);
 
             const float lighting = (ShadowRay.distance > 0.0f) ? Params.sunPosAndAmbient.w : max(Params.sunPosAndAmbient.w, dot(hitNormal, toLight));
 
@@ -285,7 +285,7 @@ Let's add one more feature of ray tracing - refractions. A thing practically imp
 
 To do this, we define the constants that contains ids of objects in our scene, and in the intersection shader we will write the id of the object we intersected into RayPayload.
 ```c++
-const float objId = float(gl_InstanceCustomIndexNVX);
+const float objId = float(gl_InstanceCustomIndexNV);
 PrimaryRay.normalAndObjId = vec4(normal, objId);
 ```
 
@@ -336,4 +336,4 @@ Wow, we made a long way from a simple colored triangle to a scene with multiple 
 
 In the next article we will try to build a hybrid renderer that combines rasterization and ray tracing.
 
-All the source code for the article is here: [https://github.com/iOrange/rtxON/tree/Version_2_1](https://github.com/iOrange/rtxON/tree/Version_2_1)
+All the source code for the article is here: [https://github.com/iOrange/rtxON/tree/Version_2_2](https://github.com/iOrange/rtxON/tree/Version_2_2)
