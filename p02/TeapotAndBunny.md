@@ -82,7 +82,7 @@ So let's write down the list of buffers we will use:
 - **Texture** (sampler2D, texture)
 
 But we have multiple objects in the scene, what about this? Fortunately for us, there is **VK_EXT_descriptor_indexing** extension, that adds a lot of goodies and relaxes for descriptors, but the most important thing for us, is that when we create descriptor set layout, we can indicate variable numbers of bindings. Thus, we can bind as many resources as we want, which is just perfect for our situation!
-I will not discuss this extension in details, it is beyond the scope of this article, so for further reference you can follow this link - [https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec. html#VK_EXT_descriptor_indexing](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec. html#VK_EXT_descriptor_indexing)
+I will not discuss this extension in details, it is beyond the scope of this article, so for further reference you can follow this link - [https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#VK_EXT_descriptor_indexing](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#VK_EXT_descriptor_indexing)
 
 Do you remember that instanceId field we assigned for each instance? So here it is now useful for us to access the correct buffer from the array! For this we will use another built-in variable **gl_InstanceCustomIndexNV**, that contains our value.
 This is what our texturing code will look like:
