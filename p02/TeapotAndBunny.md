@@ -3,7 +3,7 @@
 
 Hello everyone!
 
-[Last time we examined what Vulkan Ray Tracing is and how to work with it](../p01/screenshot_opt.png). The result of that article was a simple application that, nevertheless, creates a scene, pipeline, shaders, and displays the result of ray tracing on this scene.
+[Last time we examined what Vulkan Ray Tracing is and how to work with it](../p01/HappyTriangle.md). The result of that article was a simple application that, nevertheless, creates a scene, pipeline, shaders, and displays the result of ray tracing on this scene.
 
 And even though our triangle turned out to be an order of magnitude more realistic than a rasterized one, I would still like to see ray tracing in all its glory, that’ll also somewhat justify all that money spent on an RTX video card ;)
 
